@@ -18,7 +18,7 @@ func run(errc chan<- error) {
 	var mutex sync.Mutex
 
 	// TODO: init DAL here for MS SQL
-	db, err := dal.NewPostgresDAL("kaznachey", "RfpyfxtqAF", "localhost:5432")
+	db, err := dal.MsSQL("kaznachey", "RfpyfxtqAF", "localhost:5432")
 	if err != nil {
 		errc <- err
 		return
