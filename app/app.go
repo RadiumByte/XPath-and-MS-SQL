@@ -1,9 +1,6 @@
 package app
 
 import (
-	"errors"
-	"time"
-
 	"github.com/powerman/structlog"
 )
 
