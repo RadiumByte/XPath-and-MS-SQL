@@ -32,3 +32,27 @@ func NewMsSQL(host string, port int) (*MsSQL, error) {
 
 	return res, nil
 }
+
+// Create inserts new Receipt into DB
+func (t *MsSQL) Create(current *app.Receipt) error {
+	/*
+		var target Receipt
+		target.Price = current.Price
+		target.Post = current.Post
+
+		if current.IsBankCard {
+			target.IsBankCard = 1
+		} else {
+			target.IsBankCard = -1
+		}
+
+		target.IsProcessed = -1
+
+		err := t.DataBase.Insert(&target)
+
+		if err != nil {
+			return nil, err
+		}
+	*/
+	return nil
+}
