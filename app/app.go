@@ -25,14 +25,13 @@ type Application struct {
 
 // RegisterReceipt sends Receipt to DAL for saving/registration
 func (app *Application) RegisterReceipt(currentData *Receipt) {
-	/*
-		_, err := app.DB.Create(currentData)
+	err := app.DB.Create(currentData)
 
-		if err != nil {
-			app.errc <- err
-			return
-		}
-	*/
+	if err != nil {
+		app.errc <- err
+		return
+	}
+
 	log.Info("New receipt added to MS SQL DBMS...")
 }
 

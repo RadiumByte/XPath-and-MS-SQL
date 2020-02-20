@@ -27,7 +27,7 @@ func NewMsSQL(host string, port int) (*MsSQL, error) {
 		host, port)
 
 	// Create connection pool
-	db, err := sql.Open("sqlserver", connString)
+	db, err := sql.Open("mssql", connString)
 	if err != nil {
 		log.Fatal("Error creating connection pool: " + err.Error())
 	}
@@ -54,24 +54,25 @@ func NewMsSQL(host string, port int) (*MsSQL, error) {
 
 // Create inserts new Receipt into DB
 func (t *MsSQL) Create(current *app.Receipt) error {
-	/*
-		var target Receipt
-		target.Price = current.Price
-		target.Post = current.Post
+	var query_str = "USE storage INSERT INTO dbo.receipts values ("
+	query_str += current.PostNum + ", "
+	query_str += "'" + current.PostAddr + "', "
+	query_str += "'" + current.OFD + "', "
+	query_str += current.Price + ", "
+	query_str += current.Currency + ", "
+	query_str += current.IsBankCard + ", "
+	query_str += current.IsFiscal + ", "
+	query_str += current.IsService + ", "
 
-		if current.IsBankCard {
-			target.IsBankCard = 1
-		} else {
-			target.IsBankCard = -1
-		}
+	query_str += "'" + current.OperationTime + "')"
 
-		target.IsProcessed = -1
+	log.Println(query_str)
 
-		err := t.DataBase.Insert(&target)
+	_, err := t.DataBase.Query(query_str)
+	if err != nil {
+		log.Println("Query problem")
+		return err
+	}
 
-		if err != nil {
-			return nil, err
-		}
-	*/
 	return nil
 }

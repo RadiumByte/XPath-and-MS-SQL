@@ -16,7 +16,7 @@ func run(errc chan<- error) {
 	time.Sleep(time.Second * 10)
 
 	// TODO: init DAL here for MS SQL
-	db, err := dal.NewMsSQL("localhost", 1433)
+	db, err := dal.NewMsSQL("localhost", 1434)
 	if err != nil {
 		errc <- err
 		return

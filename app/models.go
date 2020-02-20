@@ -1,22 +1,20 @@
 package app
 
-import "time"
-
 // Receipt represents generic Receipt object
 type Receipt struct {
-	PostNum  int32
+	PostNum  string
 	PostAddr string
 
-	Price    int32
-	Currency int32
+	Price    string
+	Currency string
 
-	IsBankCard bool
+	IsBankCard string
 	OFD        string
-	IsFiscal   bool
+	IsFiscal   string
 
-	IsService bool
+	IsService string
 
-	OperationTime time.Time
+	OperationTime string
 }
 
 // NewReceipt constructs a Receipt object

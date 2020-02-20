@@ -1,9 +1,7 @@
 package api
 
 import (
-	"strconv"
 	"strings"
-	"time"
 
 	"XPath-and-MS-SQL/app"
 
@@ -72,88 +70,39 @@ func (server *WebServer) ParseXML(ctx *fasthttp.RequestCtx) {
 		// Parse general package data:
 		if postaddr := receipts.SelectElement("postaddr"); postaddr != nil {
 			currentReceipt.PostAddr = postaddr.InnerText()
-			// TODO: add logging here
 		}
 
 		if ofd := receipts.SelectElement("ofd"); ofd != nil {
 			currentReceipt.OFD = ofd.InnerText()
-			// TODO: add logging here
 		}
 
 		// Parse item-specific data:
 		if postnum := data.SelectElement("postnum"); postnum != nil {
-			numStr := postnum.InnerText()
-			numInt, err := strconv.ParseInt(numStr, 10, 32)
-			if err != nil {
-				currentReceipt.PostNum = 0
-			}
-			currentReceipt.PostNum = int32(numInt)
-			// TODO: add logging here
+			currentReceipt.PostNum = postnum.InnerText()
 		}
 
 		if price := data.SelectElement("price"); price != nil {
-			priceStr := price.InnerText()
-			priceInt, err := strconv.ParseInt(priceStr, 10, 32)
-			if err != nil {
-				currentReceipt.Price = 0
-			}
-			currentReceipt.Price = int32(priceInt)
-			// TODO: add logging here
+			currentReceipt.Price = price.InnerText()
 		}
 
 		if currency := data.SelectElement("currency"); currency != nil {
-			currencyStr := currency.InnerText()
-			currencyInt, err := strconv.ParseInt(currencyStr, 10, 32)
-			if err != nil {
-				currentReceipt.Currency = 643
-			}
-			currentReceipt.Price = int32(currencyInt)
-			// TODO: add logging here
+			currentReceipt.Currency = currency.InnerText()
 		}
 
 		if isbankcard := data.SelectElement("isbankcard"); isbankcard != nil {
-			isbankcardStr := isbankcard.InnerText()
-
-			isbankcardBool, err := strconv.ParseBool(isbankcardStr)
-			if err != nil {
-				currentReceipt.IsBankCard = false
-			}
-			currentReceipt.IsBankCard = isbankcardBool
-			// TODO: add logging here
+			currentReceipt.IsBankCard = isbankcard.InnerText()
 		}
 
 		if isfiscal := data.SelectElement("isfiscal"); isfiscal != nil {
-			isfiscalStr := isfiscal.InnerText()
-
-			isfiscalBool, err := strconv.ParseBool(isfiscalStr)
-			if err != nil {
-				currentReceipt.IsFiscal = false
-			}
-			currentReceipt.IsFiscal = isfiscalBool
-			// TODO: add logging here
+			currentReceipt.IsFiscal = isfiscal.InnerText()
 		}
 
 		if isservice := data.SelectElement("isservice"); isservice != nil {
-			isserviceStr := isservice.InnerText()
-
-			isserviceBool, err := strconv.ParseBool(isserviceStr)
-			if err != nil {
-				currentReceipt.IsService = true
-			}
-			currentReceipt.IsService = isserviceBool
-			// TODO: add logging here
+			currentReceipt.IsService = isservice.InnerText()
 		}
 
 		if datetime := data.SelectElement("time"); datetime != nil {
-			datetimeStr := datetime.InnerText()
-
-			datetimeObject, err := time.Parse(time.RFC3339, datetimeStr)
-			if err != nil {
-				currentReceipt.OperationTime = time.Now()
-			}
-
-			currentReceipt.OperationTime = datetimeObject
-			// TODO: add logging here
+			currentReceipt.OperationTime = datetime.InnerText()
 		}
 
 		// Send receipt to Application
@@ -169,6 +118,20 @@ func (server *WebServer) Start(errc chan<- error) {
 	router.PUT("/receipt_xml", server.ParseXML)
 
 	port := ":6633"
+
+	/*
+		currentReceipt := app.NewReceipt()
+		currentReceipt.Currency = "643"
+		currentReceipt.IsBankCard = "0"
+		currentReceipt.IsFiscal = "1"
+		currentReceipt.IsService = "0"
+		currentReceipt.OFD = "yandex.ofd.ru"
+		currentReceipt.PostNum = "28"
+		currentReceipt.PostAddr = "Rostov"
+		currentReceipt.Price = "754"
+		currentReceipt.OperationTime = "20120618 10:34:09"
+		server.application.RegisterReceipt(currentReceipt)
+	*/
 
 	log.Info("Server is starting on port", port)
 	errc <- fasthttp.ListenAndServe(port, router.Handler)
