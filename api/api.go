@@ -66,7 +66,7 @@ func (server *WebServer) ParseXML(ctx *fasthttp.RequestCtx) {
 	receipts := xmlquery.FindOne(message, "//receipts")
 
 	// Find all receipts inside payload
-	for _, data := range xmlquery.Find(message, "//item") {
+	for _, data := range xmlquery.Find(receipts, "//item") {
 		currentReceipt := app.NewReceipt()
 
 		// Parse general package data:

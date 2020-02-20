@@ -65,7 +65,17 @@ func (t *MsSQL) Create(current *app.Receipt) error {
 		return err
 	}
 
-	tsql := "USE storage INSERT INTO dbo.receipts values (@PostNum, @PostAddr, @OFD, @Price, @Currency, @IsBankCard, @IsFiscal, @IsService, @Time)"
+	tsql := `USE storage INSERT INTO dbo.receipts values (
+	@PostNum, 
+	@PostAddr, 
+	@OFD, 
+	@Price, 
+	@Currency, 
+	@IsBankCard, 
+	@IsFiscal, 
+	@IsService, 
+	@Time
+	)`
 
 	stmt, err := t.DataBase.Prepare(tsql)
 	if err != nil {
