@@ -1,12 +1,12 @@
 package main
 
 import (
-	"sync"
 	"time"
 
-	"github.com/RadiumByte/XPath-and-MS-SQL/api"
-	"github.com/RadiumByte/XPath-and-MS-SQL/app"
-	"github.com/RadiumByte/XPath-and-MS-SQL/dal"
+	"XPath-and-MS-SQL/api"
+	"XPath-and-MS-SQL/app"
+	"XPath-and-MS-SQL/dal"
+
 	"github.com/powerman/structlog"
 )
 
@@ -14,8 +14,6 @@ var log = structlog.New()
 
 func run(errc chan<- error) {
 	time.Sleep(time.Second * 10)
-
-	var mutex sync.Mutex
 
 	// TODO: init DAL here for MS SQL
 	db, err := dal.NewMsSQL("localhost", 1433)

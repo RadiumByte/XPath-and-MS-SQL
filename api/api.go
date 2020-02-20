@@ -1,12 +1,12 @@
 package api
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/RadiumByte/XPath-and-MS-SQL/app"
+	"XPath-and-MS-SQL/app"
+
 	"github.com/antchfx/xmlquery"
 	"github.com/buaazp/fasthttprouter"
 	"github.com/powerman/structlog"
@@ -66,7 +66,7 @@ func (server *WebServer) ParseXML(ctx *fasthttp.RequestCtx) {
 	receipts := xmlquery.FindOne(message, "//receipts")
 
 	// Find all receipts inside payload
-	for i, data := range xmlquery.Find(message, "//item") {
+	for _, data := range xmlquery.Find(message, "//item") {
 		currentReceipt := app.NewReceipt()
 
 		// Parse general package data:
@@ -87,7 +87,7 @@ func (server *WebServer) ParseXML(ctx *fasthttp.RequestCtx) {
 			if err != nil {
 				currentReceipt.PostNum = 0
 			}
-			currentReceipt.PostNum = numInt
+			currentReceipt.PostNum = int32(numInt)
 			// TODO: add logging here
 		}
 
@@ -97,7 +97,7 @@ func (server *WebServer) ParseXML(ctx *fasthttp.RequestCtx) {
 			if err != nil {
 				currentReceipt.Price = 0
 			}
-			currentReceipt.Price = priceInt
+			currentReceipt.Price = int32(priceInt)
 			// TODO: add logging here
 		}
 
@@ -107,7 +107,7 @@ func (server *WebServer) ParseXML(ctx *fasthttp.RequestCtx) {
 			if err != nil {
 				currentReceipt.Currency = 643
 			}
-			currentReceipt.Price = currencyInt
+			currentReceipt.Price = int32(currencyInt)
 			// TODO: add logging here
 		}
 

@@ -3,8 +3,11 @@ package dal
 import (
 	"database/sql"
 
-	"github.com/RadiumByte/XPath-and-MS-SQL/app"
-	"github.com/denisenkom/go-mssqldb"
+	"XPath-and-MS-SQL/app"
+	"fmt"
+	"log"
+
+	_ "github.com/denisenkom/go-mssqldb"
 )
 
 // MsSQL represents data for connection to Data base
@@ -13,6 +16,10 @@ type MsSQL struct {
 	DataBase *sql.DB
 }
 
+var (
+	sqlversion string
+)
+
 // NewMsSQL constructs object of MsSQL
 func NewMsSQL(host string, port int) (*MsSQL, error) {
 	// Create connection string
@@ -20,11 +27,23 @@ func NewMsSQL(host string, port int) (*MsSQL, error) {
 		host, port)
 
 	// Create connection pool
-	db, err = sql.Open("sqlserver", connString)
+	db, err := sql.Open("sqlserver", connString)
 	if err != nil {
 		log.Fatal("Error creating connection pool: " + err.Error())
 	}
 	log.Printf("Connected!\n")
+
+	rows, err := db.Query("select @@version")
+	if err != nil {
+		log.Fatal(err)
+	}
+	for rows.Next() {
+		err := rows.Scan(&sqlversion)
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Println(sqlversion)
+	}
 
 	res := &MsSQL{
 		Host:     host,
