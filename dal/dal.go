@@ -1,9 +1,7 @@
 package dal
 
 import (
-	"github.com/DiaElectronics/online_kasse/cmd/web/app"
-	"github.com/go-pg/pg"
-	"github.com/go-pg/pg/orm"
+	"github.com/RadiumByte/XPath-and-MS-SQL/app"
 )
 
 // Receipt represents generic Receipt object in DAL

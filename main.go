@@ -4,9 +4,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/RadiumByte/XPath-and-MS-SQL/cmd/web/api"
-	"github.com/RadiumByte/XPath-and-MS-SQL/cmd/web/app"
-	"github.com/RadiumByte/XPath-and-MS-SQL/cmd/web/dal"
+	"github.com/RadiumByte/XPath-and-MS-SQL/api"
+	"github.com/RadiumByte/XPath-and-MS-SQL/app"
+	"github.com/RadiumByte/XPath-and-MS-SQL/dal"
 	"github.com/powerman/structlog"
 )
 

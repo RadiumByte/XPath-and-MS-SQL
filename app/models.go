@@ -7,7 +7,7 @@ type Receipt struct {
 	PostNum  int32
 	PostAddr string
 
-	Price    float64
+	Price    int32
 	Currency int32
 
 	IsBankCard bool

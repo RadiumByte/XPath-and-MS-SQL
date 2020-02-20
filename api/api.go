@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
-	"github.com/RadiumByte/XPath-and-MS-SQL/cmd/web/app"
+	"github.com/RadiumByte/XPath-and-MS-SQL/app"
 	"github.com/antchfx/xmlquery"
 	"github.com/buaazp/fasthttprouter"
 	"github.com/powerman/structlog"
@@ -22,9 +23,7 @@ type WebServer struct {
 
 // ParseXML uses XPath to parse Receipt data and pushes it to Application
 func (server *WebServer) ParseXML(ctx *fasthttp.RequestCtx) {
-	log.Info("API got new receipt...")
-
-	currentReceipt := app.NewReceipt()
+	log.Info("API got new receipt. Parsing started...")
 
 	payLoad := string(ctx.PostBody())
 
@@ -66,25 +65,100 @@ func (server *WebServer) ParseXML(ctx *fasthttp.RequestCtx) {
 	// Select receipts block
 	receipts := xmlquery.FindOne(message, "//receipts")
 
-	if postaddr := channel.SelectElement("postaddr"); n != nil {
-		currentReceipt.
-			fmt.Printf(": %s\n", n.InnerText())
+	// Find all receipts inside payload
+	for i, data := range xmlquery.Find(message, "//item") {
+		currentReceipt := app.NewReceipt()
+
+		// Parse general package data:
+		if postaddr := receipts.SelectElement("postaddr"); postaddr != nil {
+			currentReceipt.PostAddr = postaddr.InnerText()
+			// TODO: add logging here
+		}
+
+		if ofd := receipts.SelectElement("ofd"); ofd != nil {
+			currentReceipt.OFD = ofd.InnerText()
+			// TODO: add logging here
+		}
+
+		// Parse item-specific data:
+		if postnum := data.SelectElement("postnum"); postnum != nil {
+			numStr := postnum.InnerText()
+			numInt, err := strconv.ParseInt(numStr, 10, 32)
+			if err != nil {
+				currentReceipt.PostNum = 0
+			}
+			currentReceipt.PostNum = numInt
+			// TODO: add logging here
+		}
+
+		if price := data.SelectElement("price"); price != nil {
+			priceStr := price.InnerText()
+			priceInt, err := strconv.ParseInt(priceStr, 10, 32)
+			if err != nil {
+				currentReceipt.Price = 0
+			}
+			currentReceipt.Price = priceInt
+			// TODO: add logging here
+		}
+
+		if currency := data.SelectElement("currency"); currency != nil {
+			currencyStr := currency.InnerText()
+			currencyInt, err := strconv.ParseInt(currencyStr, 10, 32)
+			if err != nil {
+				currentReceipt.Currency = 643
+			}
+			currentReceipt.Price = currencyInt
+			// TODO: add logging here
+		}
+
+		if isbankcard := data.SelectElement("isbankcard"); isbankcard != nil {
+			isbankcardStr := isbankcard.InnerText()
+
+			isbankcardBool, err := strconv.ParseBool(isbankcardStr)
+			if err != nil {
+				currentReceipt.IsBankCard = false
+			}
+			currentReceipt.IsBankCard = isbankcardBool
+			// TODO: add logging here
+		}
+
+		if isfiscal := data.SelectElement("isfiscal"); isfiscal != nil {
+			isfiscalStr := isfiscal.InnerText()
+
+			isfiscalBool, err := strconv.ParseBool(isfiscalStr)
+			if err != nil {
+				currentReceipt.IsFiscal = false
+			}
+			currentReceipt.IsFiscal = isfiscalBool
+			// TODO: add logging here
+		}
+
+		if isservice := data.SelectElement("isservice"); isservice != nil {
+			isserviceStr := isservice.InnerText()
+
+			isserviceBool, err := strconv.ParseBool(isserviceStr)
+			if err != nil {
+				currentReceipt.IsService = true
+			}
+			currentReceipt.IsService = isserviceBool
+			// TODO: add logging here
+		}
+
+		if datetime := data.SelectElement("time"); datetime != nil {
+			datetimeStr := datetime.InnerText()
+
+			datetimeObject, err := time.Parse(time.RFC3339, datetimeStr)
+			if err != nil {
+				currentReceipt.OperationTime = time.Now()
+			}
+
+			currentReceipt.OperationTime = datetimeObject
+			// TODO: add logging here
+		}
+
+		// Send receipt to Application
+		server.application.RegisterReceipt(currentReceipt)
 	}
-
-	if n := channel.SelectElement("link"); n != nil {
-		fmt.Printf("link: %s\n", n.InnerText())
-	}
-	for i, n := range xmlquery.Find(doc, "//item/title") {
-		fmt.Printf("#%d %s\n", i, n.InnerText())
-	}
-
-	// TODO: parse payload with XPath
-
-	// TODO: write data to the currentReceipt model
-
-	log.Info("API got new receipt...")
-
-	server.application.RegisterReceipt(currentReceipt)
 
 	ctx.SetStatusCode(fasthttp.StatusOK)
 }
