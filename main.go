@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	"XPath-and-MS-SQL/api"
 	"XPath-and-MS-SQL/app"
 	"XPath-and-MS-SQL/dal"
@@ -13,7 +11,7 @@ import (
 var log = structlog.New()
 
 func run(errc chan<- error) {
-	time.Sleep(time.Second * 10)
+	//time.Sleep(time.Second * 10)
 
 	// TODO: init DAL here for MS SQL
 	db, err := dal.NewMsSQL("localhost", 1434)

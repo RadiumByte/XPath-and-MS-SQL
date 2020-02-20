@@ -1,7 +1,9 @@
 package dal
 
 import (
+	"context"
 	"database/sql"
+	"errors"
 
 	"XPath-and-MS-SQL/app"
 	"fmt"
@@ -22,28 +24,21 @@ var (
 
 // NewMsSQL constructs object of MsSQL
 func NewMsSQL(host string, port int) (*MsSQL, error) {
-	// Create connection string
-	connString := fmt.Sprintf("server=%s;port=%d;trusted_connection=yes;",
-		host, port)
+	connString := fmt.Sprintf("server=%s;port=%d;trusted_connection=yes;", host, port)
 
-	// Create connection pool
-	db, err := sql.Open("mssql", connString)
-	if err != nil {
-		log.Fatal("Error creating connection pool: " + err.Error())
-	}
-	log.Printf("Connected!\n")
+	var err error
+	var db *sql.DB
 
-	rows, err := db.Query("select @@version")
+	db, err = sql.Open("sqlserver", connString)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Error creating connection pool: ", err.Error())
 	}
-	for rows.Next() {
-		err := rows.Scan(&sqlversion)
-		if err != nil {
-			log.Fatal(err)
-		}
-		log.Println(sqlversion)
+	ctx := context.Background()
+	err = db.PingContext(ctx)
+	if err != nil {
+		log.Fatal(err.Error())
 	}
+	fmt.Printf("Connected!\n")
 
 	res := &MsSQL{
 		Host:     host,
@@ -54,24 +49,48 @@ func NewMsSQL(host string, port int) (*MsSQL, error) {
 
 // Create inserts new Receipt into DB
 func (t *MsSQL) Create(current *app.Receipt) error {
-	var query_str = "USE storage INSERT INTO dbo.receipts values ("
-	query_str += current.PostNum + ", "
-	query_str += "'" + current.PostAddr + "', "
-	query_str += "'" + current.OFD + "', "
-	query_str += current.Price + ", "
-	query_str += current.Currency + ", "
-	query_str += current.IsBankCard + ", "
-	query_str += current.IsFiscal + ", "
-	query_str += current.IsService + ", "
+	ctx := context.Background()
+	var err error
 
-	query_str += "'" + current.OperationTime + "')"
-
-	log.Println(query_str)
-
-	_, err := t.DataBase.Query(query_str)
-	if err != nil {
-		log.Println("Query problem")
+	if t.DataBase == nil {
+		err = errors.New("DB is null")
+		log.Println("Null DB")
 		return err
+	}
+
+	// Check if database is alive.
+	err = t.DataBase.PingContext(ctx)
+	if err != nil {
+		log.Println("Ping error")
+		return err
+	}
+
+	tsql := "USE storage INSERT INTO dbo.receipts values (@PostNum, @PostAddr, @OFD, @Price, @Currency, @IsBankCard, @IsFiscal, @IsService, @Time)"
+
+	stmt, err := t.DataBase.Prepare(tsql)
+	if err != nil {
+		log.Println("Prepare error")
+		return err
+	}
+	defer stmt.Close()
+
+	row := stmt.QueryRowContext(
+		ctx,
+		sql.Named("PostNum", current.PostNum),
+		sql.Named("PostAddr", current.PostAddr),
+		sql.Named("OFD", current.OFD),
+		sql.Named("Price", current.Price),
+		sql.Named("Currency", current.Currency),
+		sql.Named("IsBankCard", current.IsBankCard),
+		sql.Named("IsFiscal", current.IsFiscal),
+		sql.Named("IsService", current.IsService),
+		sql.Named("Time", current.OperationTime),
+	)
+
+	var newID int64
+	err = row.Scan(&newID)
+	if err != nil {
+		return nil
 	}
 
 	return nil

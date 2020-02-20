@@ -2,6 +2,7 @@ package api
 
 import (
 	"strings"
+	"time"
 
 	"XPath-and-MS-SQL/app"
 
@@ -24,6 +25,7 @@ func (server *WebServer) ParseXML(ctx *fasthttp.RequestCtx) {
 	log.Info("API got new receipt. Parsing started...")
 
 	payLoad := string(ctx.PostBody())
+	log.Info(payLoad)
 
 	// Create parse tree
 	message, err := xmlquery.Parse(strings.NewReader(payLoad))
@@ -107,6 +109,7 @@ func (server *WebServer) ParseXML(ctx *fasthttp.RequestCtx) {
 
 		// Send receipt to Application
 		server.application.RegisterReceipt(currentReceipt)
+		time.Sleep(2 * time.Second)
 	}
 
 	ctx.SetStatusCode(fasthttp.StatusOK)
@@ -115,7 +118,7 @@ func (server *WebServer) ParseXML(ctx *fasthttp.RequestCtx) {
 // Start initializes Web Server, starts application and begins serving
 func (server *WebServer) Start(errc chan<- error) {
 	router := fasthttprouter.New()
-	router.PUT("/receipt_xml", server.ParseXML)
+	router.POST("/receipt_xml", server.ParseXML)
 
 	port := ":6633"
 

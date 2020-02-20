@@ -9,7 +9,6 @@ var log = structlog.New()
 // IncomeRegistration is an interface for accepting income Receipts from Web Server
 type IncomeRegistration interface {
 	RegisterReceipt(*Receipt)
-	//Start()
 }
 
 // DataAccessLayer is an interface for DAL usage from Application
