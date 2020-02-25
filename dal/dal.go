@@ -22,9 +22,20 @@ var (
 	sqlversion string
 )
 
+var server = "radiumbyte.database.windows.net"
+var port = 1433
+var user = "PutYourUserNameHere"
+var password = "PutYourPasswordHere"
+var database = "radiumbyte"
+
 // NewMsSQL constructs object of MsSQL
-func NewMsSQL(host string, port int) (*MsSQL, error) {
-	connString := fmt.Sprintf("server=%s;port=%d;trusted_connection=yes;", host, port)
+func NewMsSQL() (*MsSQL, error) {
+	connString := fmt.Sprintf("server=%s;user id=%s;password=%s;port=%d;database=%s;",
+		server,
+		user,
+		password,
+		port,
+		database)
 
 	var err error
 	var db *sql.DB
@@ -41,7 +52,7 @@ func NewMsSQL(host string, port int) (*MsSQL, error) {
 	fmt.Printf("Connected!\n")
 
 	res := &MsSQL{
-		Host:     host,
+		Host:     server,
 		DataBase: db}
 
 	return res, nil
@@ -65,7 +76,7 @@ func (t *MsSQL) Create(current *app.Receipt) error {
 		return err
 	}
 
-	tsql := `USE storage INSERT INTO dbo.receipts values (
+	tsql := `INSERT INTO dbo.receipts values (
 	@PostNum, 
 	@PostAddr, 
 	@OFD, 
